@@ -12,9 +12,13 @@ import javax.persistence.OneToOne;
 
 import com.ecommerce.domain.enums.EstadoPagamento;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @Entity
 @Inheritance(strategy= InheritanceType.JOINED)
+@JsonTypeInfo( use       = JsonTypeInfo.Id.NAME, 
+               include   = JsonTypeInfo.As.PROPERTY,
+               property  = "@type")  // Criando um campo adicional de nome @type
 public abstract class Pagamento implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -38,7 +42,7 @@ public abstract class Pagamento implements Serializable {
 	public Pagamento(Integer id, EstadoPagamento estado, Pedido pedido) {
 		this.id = id;
 		//Para usar o Enum
-		this.estado = estado.getCod();
+		this.estado =  (estado == null) ? null : estado.getCod();  // Para evitar NullPointer
 		this.pedido = pedido;
 	}
 

@@ -1,11 +1,17 @@
 package com.ecommerce.services;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce.domain.ItemPedido;
+import com.ecommerce.domain.PagamentoComBoleto;
 import com.ecommerce.domain.Pedido;
+import com.ecommerce.domain.enums.EstadoPagamento;
+import com.ecommerce.repositories.ItemPedidoRepository;
+import com.ecommerce.repositories.PagamentoRepository;
 import com.ecommerce.repositories.PedidoRepository;
 import com.ecommerce.services.exceptions.ObjectNotFoundExceptionCustom;
 
@@ -14,6 +20,18 @@ public class PedidoService {
 
 	@Autowired
 	private PedidoRepository repo;
+	
+	@Autowired
+	private BoletoService boletoService;
+	
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
+	
+	@Autowired
+	private ProdutoService produtoService;
+	
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
 
 	public Pedido findById(Integer id) {
 		Optional<Pedido> obj = repo.findById(id);
@@ -21,4 +39,62 @@ public class PedidoService {
 				" Mensagem customizada de erro! Id : " + id + " - Tipo : " + Pedido.class.getName()));
 	}
 
+	public Pedido insert(Pedido obj) {
+
+		obj.setId(null);
+		obj.setInstante(new Date());
+		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
+		obj.getPagamento().setPedido(obj);
+		
+		
+		// Se o meu pagmaneto for do tipo pagamento com Boleto
+		// Lembrar que pagamento é uma classe abstrata e PagamentoComBoleto extends Pagamento  
+		if(obj.getPagamento() instanceof PagamentoComBoleto ) {
+			PagamentoComBoleto pagto = (PagamentoComBoleto) obj.getPagamento();
+			
+			//Add data de vencimento do Pagamento
+			boletoService.preencherPagamento(pagto, obj.getInstante());
+		}
+
+		// Salvando o Pedido
+		obj = repo.save(obj);
+		
+		// Salvar o Pagamento
+		pagamentoRepository.save(obj.getPagamento());
+		
+		// Salvar os itens no Banco de Dados
+		for(ItemPedido ip : obj.getItens()) {
+			ip.setDesconto(0.0);
+
+			// Pegar o preço que está cadastrado no Produto
+			Double precoProduto = produtoService.findById(ip.getProduto().getId()).getPreco();
+			ip.setPreco(precoProduto); 
+			
+			// Associando ItemPedido com o Pedido que eu estou inserindo
+			ip.setPedido(obj);
+		}
+		itemPedidoRepository.saveAll(obj.getItens());
+		
+		return obj;
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

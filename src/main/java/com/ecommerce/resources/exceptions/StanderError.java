@@ -1,4 +1,4 @@
-package com.ecommerce.resources.handlers;
+package com.ecommerce.resources.exceptions;
 
 import java.io.Serializable;
 
