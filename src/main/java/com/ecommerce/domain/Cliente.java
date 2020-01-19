@@ -35,6 +35,14 @@ public class Cliente implements Serializable {
 
 	private String cpfOuCnpj;
 
+	/*
+	Pagina : 147 - Apostila JPA_EJB_lite_FJ-25.pdf
+	Perceba que a classe que não possui o mappedBy mapeado no atributo é a que determina o modelo
+	de banco dados, por isso ele é chamado de owning entity ou lado forte da relação. A outra, que utiliza o
+	mappedBy para informar que aquele relacionamento já está mapeado na outra ponta, é chamada de
+	inverse entity ou lado fraco da relação.
+	*/
+	
 	//@JsonBackReference trocar por @JsonIgnore
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")

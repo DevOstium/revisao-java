@@ -41,9 +41,13 @@ public class CategoriaResource {
 		return ResponseEntity.ok().body(service.findAll());
 	}
 
+	/*
+	 	@RequestBody convert o objeto json para o objeto Cateria.
+	 	O eu envio como paramento um objeto json
+		POST : http://localhost:8080/categorias/ 
+		BODY : { "nome" : "Nome Categoria" }
+    */
 	@PostMapping
-	// @RequestBody convert o objeto json para o objeto Cateria.
-	// O eu envio como paramento um objeto json
 	public ResponseEntity<Void> insert(@Valid @RequestBody CategoriaDTO obj) {
 		
 			Categoria categoriaConvert = service.fromDTO(obj);
@@ -75,9 +79,11 @@ public class CategoriaResource {
 			
 		return ResponseEntity.noContent().build();
 	}
-	
-	//Usar :  http://localhost:8080/categorias/pagination?page=1&linesPerPage=5&orderBy=nome=&direction=ASC
-	//Ex: GET : http://localhost:8080/categorias/pagination?linesPerPage=3
+	 
+	 /*
+	   Usar :  http://localhost:8080/categorias/pagination?page=1&linesPerPage=5&orderBy=nome=&direction=ASC
+       Ex   :  GET : http://localhost:8080/categorias/pagination?linesPerPage=3
+     */
 	@GetMapping("/pagination")
 	public ResponseEntity<Page<CategoriaDTO>> findPage ( @RequestParam(value="page",         defaultValue="0")     Integer  page
 			                                            ,@RequestParam(value="linesPerPage", defaultValue="24")    Integer  linesPerPage   // 24 é multiplo de 1,2,3,4 

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.domain.ItemPedido;
 import com.ecommerce.domain.PagamentoComBoleto;
 import com.ecommerce.domain.Pedido;
+import com.ecommerce.domain.Produto;
 import com.ecommerce.domain.enums.EstadoPagamento;
+import com.ecommerce.email.EmailService;
 import com.ecommerce.repositories.ItemPedidoRepository;
 import com.ecommerce.repositories.PagamentoRepository;
 import com.ecommerce.repositories.PedidoRepository;
@@ -33,6 +35,12 @@ public class PedidoService {
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
 
+	@Autowired
+	private ClienteService clienteService; 
+	
+	@Autowired
+	private EmailService emailService;
+	
 	public Pedido findById(Integer id) {
 		Optional<Pedido> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundExceptionCustom(
@@ -43,6 +51,7 @@ public class PedidoService {
 
 		obj.setId(null);
 		obj.setInstante(new Date());
+		obj.setCliente(clienteService.findById(obj.getCliente().getId()));
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
 		obj.getPagamento().setPedido(obj);
 		
@@ -66,15 +75,26 @@ public class PedidoService {
 		for(ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.0);
 
-			// Pegar o preço que está cadastrado no Produto
-			Double precoProduto = produtoService.findById(ip.getProduto().getId()).getPreco();
-			ip.setPreco(precoProduto); 
 			
+			Produto produto = produtoService.findById(ip.getProduto().getId());
+			ip.setProduto(produto);
+			// Pegar o preço que está cadastrado no Produto
+			//Double precoProduto = produtoService.findById(ip.getProduto().getId()).getPreco();
+			//ip.setPreco(precoProduto); 
+			
+			ip.setPreco(ip.getProduto().getPreco());
+
 			// Associando ItemPedido com o Pedido que eu estou inserindo
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
 		
+		    //System.out.println(" Inserindo o Pedido ");
+			//System.out.println(obj);
+		
+			//emailService.sendOrderConfirmationEmail(obj);
+			emailService.sendOrderConfirmationHtmlEmail(obj);
+			
 		return obj;
 	}
 

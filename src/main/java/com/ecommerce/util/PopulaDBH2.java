@@ -7,8 +7,6 @@ import java.util.Arrays;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.domain.Categoria;
@@ -35,7 +33,6 @@ import com.ecommerce.repositories.PedidoRepository;
 import com.ecommerce.repositories.ProdutoRepository;
 
 @Service
-@Configuration
 public class PopulaDBH2 {
 
 	@Autowired
@@ -65,7 +62,6 @@ public class PopulaDBH2 {
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
 	
-	@Bean
 	@Transactional
 	public void DB() throws ParseException {
 	
@@ -209,7 +205,7 @@ public class PopulaDBH2 {
 		
 		cidadeRepository.saveAll(Arrays.asList(c1, c2, c3));
 		
-		Cliente cli1 = new Cliente(null, "Fagner lira", "fagnerlira@rmail.com", "2233442222", TipoCliente.PESSOAFISICA);
+		Cliente cli1 = new Cliente(null, "Fagner lira", "fagnerlira@hotmail.com", "2233442222", TipoCliente.PESSOAFISICA);
    		        cli1.getTelefones().addAll(Arrays.asList("1177889988", "1177886655"));
 		
 		Endereco e1 = new Endereco(null, "Rua Centro", "22", "casa", "Centro", "13222889", cli1, c1);
